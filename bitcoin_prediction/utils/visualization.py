@@ -13,11 +13,11 @@ from bitcoin_prediction.utils.logger import logger
 
 
 def plot_predictions(
-        actual: pd.DataFrame,
-        predictions: pd.DataFrame,
-        feature: str = 'Close',
-        output_dir: Optional[str] = None,
-        show_plot: bool = False
+    actual: pd.DataFrame,
+    predictions: pd.DataFrame,
+    feature: str = "Close",
+    output_dir: Optional[str] = None,
+    show_plot: bool = False,
 ) -> str:
     """
     Plot actual vs predicted values for a specific feature.
@@ -34,12 +34,12 @@ def plot_predictions(
     """
     plt.figure(figsize=(14, 7))
 
-    plt.plot(actual.index, actual[feature], label='Actual')
-    plt.plot(predictions.index, predictions[feature], label='Predicted', linestyle='--')
+    plt.plot(actual.index, actual[feature], label="Actual")
+    plt.plot(predictions.index, predictions[feature], label="Predicted", linestyle="--")
 
-    plt.title(f'{feature} Price - Actual vs Predicted')
-    plt.xlabel('Date')
-    plt.ylabel('Price')
+    plt.title(f"{feature} Price - Actual vs Predicted")
+    plt.xlabel("Date")
+    plt.ylabel("Price")
     plt.legend()
     plt.grid(True)
 
@@ -51,7 +51,7 @@ def plot_predictions(
     os.makedirs(output_dir, exist_ok=True)
 
     # Save the plot
-    output_path = os.path.join(output_dir, f'{feature}_prediction.png')
+    output_path = os.path.join(output_dir, f"{feature}_prediction.png")
     plt.savefig(output_path)
 
     # Show the plot if requested
@@ -66,9 +66,9 @@ def plot_predictions(
 
 
 def plot_training_history(
-        history: Dict[str, List[float]],
-        output_dir: Optional[str] = None,
-        show_plot: bool = False
+    history: Dict[str, List[float]],
+    output_dir: Optional[str] = None,
+    show_plot: bool = False,
 ) -> str:
     """
     Plot training and validation loss.
@@ -83,14 +83,14 @@ def plot_training_history(
     """
     plt.figure(figsize=(14, 7))
 
-    epochs = range(1, len(history['train_loss']) + 1)
+    epochs = range(1, len(history["train_loss"]) + 1)
 
-    plt.plot(epochs, history['train_loss'], label='Training Loss')
-    plt.plot(epochs, history['val_loss'], label='Validation Loss')
+    plt.plot(epochs, history["train_loss"], label="Training Loss")
+    plt.plot(epochs, history["val_loss"], label="Validation Loss")
 
-    plt.title('Training and Validation Loss')
-    plt.xlabel('Epochs')
-    plt.ylabel('Loss')
+    plt.title("Training and Validation Loss")
+    plt.xlabel("Epochs")
+    plt.ylabel("Loss")
     plt.legend()
     plt.grid(True)
 
@@ -102,7 +102,7 @@ def plot_training_history(
     os.makedirs(output_dir, exist_ok=True)
 
     # Save the plot
-    output_path = os.path.join(output_dir, 'training_history.png')
+    output_path = os.path.join(output_dir, "training_history.png")
     plt.savefig(output_path)
 
     # Show the plot if requested
@@ -117,11 +117,11 @@ def plot_training_history(
 
 
 def plot_feature_importance(
-        metrics: Dict[str, Dict[str, float]],
-        metric_name: str = 'MSE',
-        top_n: int = 10,
-        output_dir: Optional[str] = None,
-        show_plot: bool = False
+    metrics: Dict[str, Dict[str, float]],
+    metric_name: str = "MSE",
+    top_n: int = 10,
+    output_dir: Optional[str] = None,
+    show_plot: bool = False,
 ) -> str:
     """
     Plot feature importance based on prediction metrics.
@@ -147,7 +147,7 @@ def plot_feature_importance(
     # Sort by metric value
     sorted_indices = np.argsort(values)
 
-    if metric_name in ['MSE', 'MAE', 'RMSE']:
+    if metric_name in ["MSE", "MAE", "RMSE"]:
         # For error metrics, lower is better
         sorted_indices = sorted_indices[:top_n]
     else:
@@ -161,10 +161,10 @@ def plot_feature_importance(
 
     plt.barh(top_features, top_values)
 
-    plt.title(f'Top {top_n} Features by {metric_name}')
+    plt.title(f"Top {top_n} Features by {metric_name}")
     plt.xlabel(metric_name)
-    plt.ylabel('Feature')
-    plt.grid(True, axis='x')
+    plt.ylabel("Feature")
+    plt.grid(True, axis="x")
 
     # Create output directory if it doesn't exist
     if output_dir is None:
@@ -174,7 +174,7 @@ def plot_feature_importance(
     os.makedirs(output_dir, exist_ok=True)
 
     # Save the plot
-    output_path = os.path.join(output_dir, f'feature_importance_{metric_name}.png')
+    output_path = os.path.join(output_dir, f"feature_importance_{metric_name}.png")
     plt.savefig(output_path)
 
     # Show the plot if requested

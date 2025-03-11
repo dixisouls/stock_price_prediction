@@ -18,13 +18,13 @@ class CryptoDataset(Dataset):
     """
 
     def __init__(
-            self,
-            data: pd.DataFrame,
-            sequence_length: Optional[int] = None,
-            train: bool = True,
-            train_split: Optional[float] = None,
-            scale_data: bool = True,
-            scaler: Optional[StandardScaler] = None
+        self,
+        data: pd.DataFrame,
+        sequence_length: Optional[int] = None,
+        train: bool = True,
+        train_split: Optional[float] = None,
+        scale_data: bool = True,
+        scaler: Optional[StandardScaler] = None,
     ):
         """
         Initialize the dataset.
@@ -74,7 +74,7 @@ class CryptoDataset(Dataset):
         X, y = [], []
 
         for i in range(len(self.data) - self.sequence_length):
-            X.append(self.data[i:i + self.sequence_length])
+            X.append(self.data[i : i + self.sequence_length])
             y.append(self.data[i + self.sequence_length])
 
         return np.array(X), np.array(y)

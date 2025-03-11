@@ -27,14 +27,16 @@ class PositionalEncoding(nn.Module):
 
         pe = torch.zeros(max_len, d_model)
         position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1)
-        div_term = torch.exp(torch.arange(0, d_model, 2).float() * (-np.log(10000.0) / d_model))
+        div_term = torch.exp(
+            torch.arange(0, d_model, 2).float() * (-np.log(10000.0) / d_model)
+        )
 
         pe[:, 0::2] = torch.sin(position * div_term)
         pe[:, 1::2] = torch.cos(position * div_term)
 
         pe = pe.unsqueeze(0).transpose(0, 1)
 
-        self.register_buffer('pe', pe)
+        self.register_buffer("pe", pe)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
@@ -46,7 +48,7 @@ class PositionalEncoding(nn.Module):
         Returns:
             Tensor with positional encoding added.
         """
-        x = x + self.pe[:x.size(0), :]
+        x = x + self.pe[: x.size(0), :]
         return x
 
 
@@ -56,13 +58,13 @@ class CryptoTransformer(nn.Module):
     """
 
     def __init__(
-            self,
-            feature_dim: int,
-            d_model: Optional[int] = None,
-            nhead: Optional[int] = None,
-            num_encoder_layers: Optional[int] = None,
-            dim_feedforward: Optional[int] = None,
-            dropout: Optional[float] = None
+        self,
+        feature_dim: int,
+        d_model: Optional[int] = None,
+        nhead: Optional[int] = None,
+        num_encoder_layers: Optional[int] = None,
+        dim_feedforward: Optional[int] = None,
+        dropout: Optional[float] = None,
     ):
         """
         Initialize the Transformer model.
@@ -96,7 +98,9 @@ class CryptoTransformer(nn.Module):
         encoder_layers = nn.TransformerEncoderLayer(
             self.d_model, nhead, dim_feedforward, dropout
         )
-        self.transformer_encoder = nn.TransformerEncoder(encoder_layers, num_encoder_layers)
+        self.transformer_encoder = nn.TransformerEncoder(
+            encoder_layers, num_encoder_layers
+        )
 
         # Output layer
         self.output_layer = nn.Linear(self.d_model, feature_dim)
@@ -141,7 +145,9 @@ class CryptoTransformer(nn.Module):
         torch.save(self.state_dict(), path)
 
     @classmethod
-    def load(cls, path: str, feature_dim: int, device: torch.device = None) -> "CryptoTransformer":
+    def load(
+        cls, path: str, feature_dim: int, device: torch.device = None
+    ) -> "CryptoTransformer":
         """
         Load the model from a file.
 

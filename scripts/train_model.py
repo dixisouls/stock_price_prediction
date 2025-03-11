@@ -3,6 +3,13 @@ Main script to run the Bitcoin price prediction pipeline.
 """
 
 import os
+import sys
+from pathlib import Path
+
+# Add project root to the path
+project_root = str(Path(__file__).parent.parent)
+sys.path.insert(0, project_root)
+
 import argparse
 
 import torch.nn as nn
@@ -14,7 +21,11 @@ from bitcoin_prediction.models import CryptoTransformer
 from bitcoin_prediction.train import train_model, evaluate_model, make_predictions
 from bitcoin_prediction.train.trainer import create_data_loaders
 from bitcoin_prediction.utils import logger
-from bitcoin_prediction.utils.visualization import plot_predictions, plot_training_history, plot_feature_importance
+from bitcoin_prediction.utils.visualization import (
+    plot_predictions,
+    plot_training_history,
+    plot_feature_importance,
+)
 
 
 def parse_args():
@@ -35,7 +46,9 @@ def parse_args():
     parser.add_argument("--sequence-length", type=int, help="Sequence length")
     parser.add_argument("--d-model", type=int, help="Model dimension")
     parser.add_argument("--nhead", type=int, help="Number of heads")
-    parser.add_argument("--num-encoder-layers", type=int, help="Number of encoder layers")
+    parser.add_argument(
+        "--num-encoder-layers", type=int, help="Number of encoder layers"
+    )
     parser.add_argument("--dim-feedforward", type=int, help="Feedforward dimension")
     parser.add_argument("--dropout", type=float, help="Dropout probability")
 
@@ -44,7 +57,12 @@ def parse_args():
     parser.add_argument("--batch-size", type=int, help="Batch size")
     parser.add_argument("--learning-rate", type=float, help="Learning rate")
     parser.add_argument("--num-epochs", type=int, help="Number of epochs")
-    parser.add_argument("--early-stopping-patience", type=int, default=10, help="Early stopping patience")
+    parser.add_argument(
+        "--early-stopping-patience",
+        type=int,
+        default=10,
+        help="Early stopping patience",
+    )
 
     # Prediction arguments
     parser.add_argument("--num-predictions", type=int, help="Number of predictions")
@@ -52,7 +70,9 @@ def parse_args():
     # Output arguments
     parser.add_argument("--model-save-path", type=str, help="Model save path")
     parser.add_argument("--no-train", action="store_true", help="Skip training")
-    parser.add_argument("--load-model", action="store_true", help="Load model for prediction")
+    parser.add_argument(
+        "--load-model", action="store_true", help="Load model for prediction"
+    )
 
     return parser.parse_args()
 
@@ -101,7 +121,7 @@ def main():
     data = fetch_crypto_data(
         ticker=config["ticker"],
         start_date=config["start_date"],
-        end_date=config["end_date"]
+        end_date=config["end_date"],
     )
 
     # Engineer features
@@ -112,7 +132,7 @@ def main():
         data_with_features,
         sequence_length=config["sequence_length"],
         train=True,
-        train_split=config["train_split"]
+        train_split=config["train_split"],
     )
 
     test_dataset = CryptoDataset(
@@ -121,14 +141,12 @@ def main():
         train=False,
         train_split=config["train_split"],
         scale_data=True,
-        scaler=train_dataset.scaler
+        scaler=train_dataset.scaler,
     )
 
     # Create data loaders
     train_loader, val_loader, test_loader = create_data_loaders(
-        train_dataset,
-        test_dataset,
-        batch_size=config["batch_size"]
+        train_dataset, test_dataset, batch_size=config["batch_size"]
     )
 
     # Get feature dimension
@@ -148,7 +166,7 @@ def main():
             nhead=config["nhead"],
             num_encoder_layers=config["num_encoder_layers"],
             dim_feedforward=config["dim_feedforward"],
-            dropout=config["dropout"]
+            dropout=config["dropout"],
         )
 
     # Create optimizer and loss function
@@ -167,7 +185,7 @@ def main():
             num_epochs=config["num_epochs"],
             device=config["device"],
             save_path=config["model_save_path"],
-            early_stopping_patience=args.early_stopping_patience
+            early_stopping_patience=args.early_stopping_patience,
         )
 
         # Plot training history
@@ -184,7 +202,7 @@ def main():
         test_loader=test_loader,
         scaler=train_dataset.scaler,
         feature_columns=data_with_features.columns,
-        device=config["device"]
+        device=config["device"],
     )
 
     # Plot feature importance
@@ -197,15 +215,15 @@ def main():
         scaler=train_dataset.scaler,
         sequence_length=config["sequence_length"],
         num_predictions=config["num_predictions"],
-        device=config["device"]
+        device=config["device"],
     )
 
     # Plot results
     plot_predictions(
         actual=data_with_features.iloc[-90:],
         predictions=predictions,
-        feature='Close',
-        output_dir=config["output_dir"]
+        feature="Close",
+        output_dir=config["output_dir"],
     )
 
     # Save predictions

@@ -67,11 +67,11 @@ def calculate_rsi(data: pd.DataFrame, column: str, window: int) -> pd.Series:
 
 
 def calculate_macd(
-        data: pd.DataFrame,
-        column: str,
-        fast_period: int = 12,
-        slow_period: int = 26,
-        signal_period: int = 9
+    data: pd.DataFrame,
+    column: str,
+    fast_period: int = 12,
+    slow_period: int = 26,
+    signal_period: int = 9,
 ) -> Tuple[pd.Series, pd.Series, pd.Series]:
     """
     Calculate MACD (Moving Average Convergence Divergence) for a given column.
@@ -101,10 +101,7 @@ def calculate_macd(
 
 
 def calculate_bollinger_bands(
-        data: pd.DataFrame,
-        column: str,
-        window: int = 20,
-        num_std: float = 2.0
+    data: pd.DataFrame, column: str, window: int = 20, num_std: float = 2.0
 ) -> Tuple[pd.Series, pd.Series, pd.Series]:
     """
     Calculate Bollinger Bands for a given column.
@@ -145,9 +142,9 @@ def calculate_atr(data: pd.DataFrame, window: int = 14) -> pd.Series:
     Returns:
         Series containing the ATR values.
     """
-    high = data['High']
-    low = data['Low']
-    close = data['Close']
+    high = data["High"]
+    low = data["Low"]
+    close = data["Close"]
 
     prev_close = close.shift(1)
 
@@ -172,10 +169,12 @@ def calculate_volume_sma(data: pd.DataFrame, window: int) -> pd.Series:
     Returns:
         Series containing the Volume SMA values.
     """
-    return data['Volume'].rolling(window=window).mean()
+    return data["Volume"].rolling(window=window).mean()
 
 
-def add_lagged_features(data: pd.DataFrame, columns: List[str], lags: List[int]) -> pd.DataFrame:
+def add_lagged_features(
+    data: pd.DataFrame, columns: List[str], lags: List[int]
+) -> pd.DataFrame:
     """
     Add lagged features for the specified columns.
 
@@ -211,41 +210,41 @@ def engineer_features(data: pd.DataFrame) -> pd.DataFrame:
     df = data.copy()
 
     # Calculate SMAs
-    df['SMA_7'] = calculate_sma(df, 'Close', 7)
-    df['SMA_14'] = calculate_sma(df, 'Close', 14)
-    df['SMA_21'] = calculate_sma(df, 'Close', 21)
+    df["SMA_7"] = calculate_sma(df, "Close", 7)
+    df["SMA_14"] = calculate_sma(df, "Close", 14)
+    df["SMA_21"] = calculate_sma(df, "Close", 21)
 
     # Calculate EMAs
-    df['EMA_9'] = calculate_ema(df, 'Close', 9)
-    df['EMA_21'] = calculate_ema(df, 'Close', 21)
+    df["EMA_9"] = calculate_ema(df, "Close", 9)
+    df["EMA_21"] = calculate_ema(df, "Close", 21)
 
     # Calculate RSI
-    df['RSI_14'] = calculate_rsi(df, 'Close', 14)
+    df["RSI_14"] = calculate_rsi(df, "Close", 14)
 
     # Calculate MACD
-    macd_line, signal_line, histogram = calculate_macd(df, 'Close')
-    df['MACD_Line'] = macd_line
-    df['MACD_Signal'] = signal_line
-    df['MACD_Histogram'] = histogram
+    macd_line, signal_line, histogram = calculate_macd(df, "Close")
+    df["MACD_Line"] = macd_line
+    df["MACD_Signal"] = signal_line
+    df["MACD_Histogram"] = histogram
 
     # Calculate Bollinger Bands
-    upper_band, middle_band, lower_band = calculate_bollinger_bands(df, 'Close')
-    df['BB_Upper'] = upper_band
-    df['BB_Middle'] = middle_band
-    df['BB_Lower'] = lower_band
+    upper_band, middle_band, lower_band = calculate_bollinger_bands(df, "Close")
+    df["BB_Upper"] = upper_band
+    df["BB_Middle"] = middle_band
+    df["BB_Lower"] = lower_band
 
     # Calculate Average True Range
-    df['ATR_14'] = calculate_atr(df, 14)
+    df["ATR_14"] = calculate_atr(df, 14)
 
     # Calculate Volume SMA
-    df['Volume_SMA_7'] = calculate_volume_sma(df, 7)
-    df['Volume_SMA_14'] = calculate_volume_sma(df, 14)
+    df["Volume_SMA_7"] = calculate_volume_sma(df, 7)
+    df["Volume_SMA_14"] = calculate_volume_sma(df, 14)
 
     # Add price momentum
-    df['Price_Momentum'] = df['Close'] / df['Close'].shift(7) - 1
+    df["Price_Momentum"] = df["Close"] / df["Close"].shift(7) - 1
 
     # Add lagged features
-    lag_columns = ['Close', 'SMA_7', 'RSI_14', 'MACD_Line']
+    lag_columns = ["Close", "SMA_7", "RSI_14", "MACD_Line"]
     df = add_lagged_features(df, lag_columns, [1, 2, 3])
 
     # Drop rows with NaN values

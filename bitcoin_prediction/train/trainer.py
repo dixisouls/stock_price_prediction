@@ -9,21 +9,22 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
+from tqdm import tqdm
 
 from bitcoin_prediction.config import get_config
 from bitcoin_prediction.utils.logger import logger
 
 
 def train_model(
-        model: nn.Module,
-        train_loader: DataLoader,
-        val_loader: DataLoader,
-        optimizer: Optional[torch.optim.Optimizer] = None,
-        criterion: Optional[nn.Module] = None,
-        num_epochs: Optional[int] = None,
-        device: Optional[torch.device] = None,
-        save_path: Optional[str] = None,
-        early_stopping_patience: int = 10
+    model: nn.Module,
+    train_loader: DataLoader,
+    val_loader: DataLoader,
+    optimizer: Optional[torch.optim.Optimizer] = None,
+    criterion: Optional[nn.Module] = None,
+    num_epochs: Optional[int] = None,
+    device: Optional[torch.device] = None,
+    save_path: Optional[str] = None,
+    early_stopping_patience: int = 10,
 ) -> Dict[str, List[float]]:
     """
     Train the model.
@@ -62,17 +63,19 @@ def train_model(
     logger.info(f"Starting training on {device} for {num_epochs} epochs")
 
     model.to(device)
-    history = {'train_loss': [], 'val_loss': []}
+    history = {"train_loss": [], "val_loss": []}
 
-    best_val_loss = float('inf')
+    best_val_loss = float("inf")
     early_stopping_counter = 0
 
-    for epoch in range(num_epochs):
+    for epoch in tqdm(range(num_epochs), desc="Training epochs", leave=True):
         # Training
         model.train()
         train_loss = 0.0
 
-        for batch_X, batch_y in train_loader:
+        for batch_X, batch_y in tqdm(
+            train_loader, desc=f"Epoch {epoch+1}/{num_epochs}", leave=False
+        ):
             batch_X, batch_y = batch_X.to(device), batch_y.to(device)
 
             optimizer.zero_grad()
@@ -85,14 +88,14 @@ def train_model(
             train_loss += loss.item()
 
         train_loss /= len(train_loader)
-        history['train_loss'].append(train_loss)
+        history["train_loss"].append(train_loss)
 
         # Validation
         model.eval()
         val_loss = 0.0
 
         with torch.no_grad():
-            for batch_X, batch_y in val_loader:
+            for batch_X, batch_y in tqdm(val_loader, desc="Validation", leave=False):
                 batch_X, batch_y = batch_X.to(device), batch_y.to(device)
 
                 outputs = model(batch_X)
@@ -101,23 +104,28 @@ def train_model(
                 val_loss += loss.item()
 
         val_loss /= len(val_loader)
-        history['val_loss'].append(val_loss)
+        history["val_loss"].append(val_loss)
 
-        logger.info(f"Epoch {epoch + 1}/{num_epochs}, Train Loss: {train_loss:.6f}, Val Loss: {val_loss:.6f}")
+        logger.info(
+            f"Epoch {epoch+1}/{num_epochs}, Train Loss: {train_loss:.6f}, Val Loss: {val_loss:.6f}"
+        )
 
         # Save best model
         if val_loss < best_val_loss:
             best_val_loss = val_loss
-            logger.info(f"New best validation loss: {best_val_loss:.6f}, saving model to {save_path}")
+            logger.info(
+                f"New best validation loss: {best_val_loss:.6f}, saving model to {save_path}"
+            )
             model.save(save_path)
             early_stopping_counter = 0
         else:
             early_stopping_counter += 1
             logger.info(
-                f"Validation loss did not improve. Early stopping counter: {early_stopping_counter}/{early_stopping_patience}")
+                f"Validation loss did not improve. Early stopping counter: {early_stopping_counter}/{early_stopping_patience}"
+            )
 
             if early_stopping_counter >= early_stopping_patience:
-                logger.info(f"Early stopping after {epoch + 1} epochs")
+                logger.info(f"Early stopping after {epoch+1} epochs")
                 break
 
     logger.info("Training complete")
@@ -125,10 +133,10 @@ def train_model(
 
 
 def create_data_loaders(
-        train_dataset,
-        test_dataset,
-        batch_size: Optional[int] = None,
-        val_ratio: float = 0.2
+    train_dataset,
+    test_dataset,
+    batch_size: Optional[int] = None,
+    val_ratio: float = 0.2,
 ) -> Tuple[DataLoader, DataLoader, DataLoader]:
     """
     Create data loaders for training, validation, and testing.
@@ -156,16 +164,10 @@ def create_data_loaders(
     )
 
     # Create data loaders
-    train_loader = DataLoader(
-        train_subset, batch_size=batch_size, shuffle=True
-    )
+    train_loader = DataLoader(train_subset, batch_size=batch_size, shuffle=True)
 
-    val_loader = DataLoader(
-        val_subset, batch_size=batch_size, shuffle=False
-    )
+    val_loader = DataLoader(val_subset, batch_size=batch_size, shuffle=False)
 
-    test_loader = DataLoader(
-        test_dataset, batch_size=batch_size, shuffle=False
-    )
+    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
     return train_loader, val_loader, test_loader

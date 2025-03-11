@@ -11,9 +11,9 @@ from bitcoin_prediction.utils.logger import logger
 
 
 def fetch_crypto_data(
-        ticker: Optional[str] = None,
-        start_date: Optional[str] = None,
-        end_date: Optional[str] = None
+    ticker: Optional[str] = None,
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
 ) -> pd.DataFrame:
     """
     Fetch historical cryptocurrency data using yfinance.

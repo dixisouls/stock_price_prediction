@@ -11,7 +11,9 @@ from pathlib import Path
 from bitcoin_prediction.config import get_config
 
 
-def setup_logger(name: str = "bitcoin_prediction", log_to_file: bool = True) -> logging.Logger:
+def setup_logger(
+    name: str = "bitcoin_prediction", log_to_file: bool = True
+) -> logging.Logger:
     """
     Set up and configure a logger.
 
@@ -28,7 +30,9 @@ def setup_logger(name: str = "bitcoin_prediction", log_to_file: bool = True) -> 
     logger.setLevel(logging.INFO)
 
     # Create formatter
-    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
 
     # Create console handler
     console_handler = logging.StreamHandler()
