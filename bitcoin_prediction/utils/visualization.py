@@ -3,6 +3,7 @@ Visualization functions for the Bitcoin price prediction model.
 """
 
 import os
+from pathlib import Path
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
@@ -34,8 +35,27 @@ def plot_predictions(
     """
     plt.figure(figsize=(14, 7))
 
-    plt.plot(actual.index, actual[feature], label="Actual")
-    plt.plot(predictions.index, predictions[feature], label="Predicted", linestyle="--")
+    # Plot actual values
+    plt.plot(actual.index, actual[feature], label="Actual", color="blue")
+
+    # Plot predicted values with a solid line but different color
+    plt.plot(
+        predictions.index,
+        predictions[feature],
+        label="Predicted",
+        color="orange",
+        linestyle="-",
+    )
+
+    # To create a continuous visual, add a subtle connection between the last actual and first predicted point
+    plt.plot(
+        [actual.index[-1], predictions.index[0]],
+        [actual[feature].iloc[-1], predictions[feature].iloc[0]],
+        color="gray",
+        alpha=0.5,
+        linestyle="-",
+        linewidth=1,
+    )
 
     plt.title(f"{feature} Price - Actual vs Predicted")
     plt.xlabel("Date")
@@ -144,18 +164,29 @@ def plot_feature_importance(
         features.append(feature)
         values.append(feature_metrics[metric_name])
 
-    # Sort by metric value
-    sorted_indices = np.argsort(values)
+    # Convert to lists to ensure hashable types
+    features = [str(f) for f in features]
+    values = [float(v) for v in values]
 
+    # Create tuples of (feature, value) for sorting
+    feature_value_pairs = list(zip(features, values))
+
+    # Sort by metric value
     if metric_name in ["MSE", "MAE", "RMSE"]:
         # For error metrics, lower is better
-        sorted_indices = sorted_indices[:top_n]
+        feature_value_pairs.sort(key=lambda x: x[1])
+        # Take top_n
+        feature_value_pairs = feature_value_pairs[:top_n]
     else:
         # For other metrics, higher is better
-        sorted_indices = sorted_indices[-top_n:]
+        feature_value_pairs.sort(key=lambda x: x[1], reverse=True)
+        # Take top_n
+        feature_value_pairs = feature_value_pairs[:top_n]
 
-    top_features = [features[i] for i in sorted_indices]
-    top_values = [values[i] for i in sorted_indices]
+    # Unzip the pairs
+    top_features, top_values = (
+        map(list, zip(*feature_value_pairs)) if feature_value_pairs else ([], [])
+    )
 
     plt.figure(figsize=(14, 10))
 
